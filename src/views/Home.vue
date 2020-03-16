@@ -3,7 +3,7 @@
     <!--img alt="Vue logo" src="../assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/-->
     <div class="tooltip">
-      <button><i class="fas fa-plus-circle"> Nueva</i></button>
+      <button><router-link to="/createConnection"><i class="fas fa-plus-circle"> Nueva</i></router-link></button>
       <span class="tooltiptext">Crear una nueva conexión</span>
     </div>
     

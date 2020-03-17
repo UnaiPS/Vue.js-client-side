@@ -2,9 +2,9 @@
     <div class="newConnection">
         <form @submit="checkForm">
           <p v-if="errors.length">
-            <b>Por favor, corrija el(los) siguiente(s) error(es):</b>
+            <b style="color:#ff4d4d;">Por favor, corrija el(los) siguiente(s) error(es):</b>
             <ul>
-              <li v-for="errors in errors" :key="errors">{{ errors }}</li>
+              <li style="color:#ff4d4d;" v-for="errors in errors" :key="errors">{{ errors }}</li>
             </ul>
           </p>
           <select class="form-control" @change="changeType($event)">
@@ -72,9 +72,11 @@ export default {
       console.log(params);
 
       axios.post('http://localhost:8069/createConnection', params).catch(err => {
-               console.log(err);
-               return null;
-           });
+          console.log(err);
+          return null;
+      });
+      alert("Se ha creado una nueva conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios");
+      this.$router.push('/');
     },
     changeType(event) {
       this.id = event.target.value;
@@ -163,5 +165,8 @@ export default {
   padding: 10px 50px;
   cursor: pointer;
   transition: .4s;
-}
+  }
+  b, ul{
+    color:white;
+  }
 </style>

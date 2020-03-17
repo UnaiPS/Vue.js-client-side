@@ -2,9 +2,9 @@
     <div class="updateConnection">
         <form @submit="checkForm">
           <p v-if="errors.length">
-            <b>Por favor, corrija el(los) siguiente(s) error(es):</b>
+            <b style="color:#ff4d4d;">Por favor, corrija el(los) siguiente(s) error(es):</b>
             <ul>
-              <li v-for="errors in errors" :key="errors">{{ errors }}</li>
+              <li style="color:#ff4d4d;" v-for="errors in errors" :key="errors">{{ errors }}</li>
             </ul>
           </p>
           <select class="form-control" @change="changeType($event)">
@@ -55,7 +55,8 @@ export default {
                console.log(err);
                return null;
            });
-      alert("Se ha modificado la conexión");
+      alert("Se ha modificado la conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios");
+      this.$router.push('/');
     },
     changeType(event) {
       this.typeId = event.target.value;

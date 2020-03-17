@@ -29,7 +29,7 @@
           <td>{{connection.active}}</td>
           <td>
             <div class="tooltip">
-              <button><i class="fas fa-edit"></i></button>
+              <button @click="updateConnection(connection.id)"><i class="fas fa-edit"></i></button>
               <span class="tooltiptext">Editar la conexión</span>
             </div>
             <div class="tooltip">
@@ -60,6 +60,13 @@ export default {
     axios.get('http://localhost:8069/findAllConnections').then(response => {
       this.connections = response.data
     })
+  },
+  methods: {
+    updateConnection: function(number){
+      console.log(number);
+      var route = "updateConnection/"+number;
+      this.$router.push(route);
+    }
   }
 }
 </script>

@@ -22,6 +22,12 @@ const routes = [
     path: '/createConnection',
     name: 'Create Connection',
     component: () => import('../views/NewConnection.vue')
+  },
+  {
+    path: '/updateConnection/:connId',
+    name: 'Update Connection',
+    component: () => import('../views/EditConnection.vue'),
+    props: true,
   }
 ]
 

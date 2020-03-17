@@ -1,5 +1,5 @@
 <template>
-    <div class="newConnection">
+    <div class="updateConnection">
         <form @submit="checkForm">
           <p v-if="errors.length">
             <b>Por favor, corrija el(los) siguiente(s) error(es):</b>
@@ -12,12 +12,12 @@
             <option v-for="types in types" :key="types.id" :value="types.id">{{types.type}}</option>
           </select>
           <br>
-          <input type="text" id="host" name="host" placeholder="Host" v-model="host"><br>
-          <input type="text" id="user" name="user" placeholder="User" v-model="user"><br>
-          <input type="text" id="alias" name="alias" placeholder="Alias" v-model="alias"><br>
-          <input type="text" name="port" id="port" placeholder="Port" v-model="port"><br>
-          <input type="password" name="pass" id="pass" placeholder="Pass" v-model="pass"><br>
-          <input type="checkbox" name="active" id="active" v-model="active">
+          <input type="text" id="host" name="host" placeholder="Host" v-model="connection.host"><br>
+          <input type="text" id="user" name="user" placeholder="User" v-model="connection.user"><br>
+          <input type="text" id="alias" name="alias" placeholder="Alias" v-model="connection.alias"><br>
+          <input type="text" name="port" id="port" placeholder="Port" v-model="connection.port"><br>
+          <input type="password" name="pass" id="pass" placeholder="Pass" v-model="connection.pass"><br>
+          <input type="checkbox" name="active" id="active" v-model="connection.active">
           <label for="active">Activo</label><br>
           <input type="submit" value="Guardar" id="guardar">
           <button @click="cancelar()" id="cancelar">Cancelar</button>
@@ -28,86 +28,68 @@
 <script>
 import axios from 'axios';
 export default {
-  name: 'Home',
-  data(){
-    return{
-      errors:[],
-      host: '',
-      port: null,
-      user: '',
-      pass: '',
-      alias: '',
-      active: false,
-      createDate: null,
-      id: null,
-      types:[],
+    props: ['connId'],
+    data(){
+        return{
+            errors:[],
+            types:[],
+            connection:[],
+            typeId: null,
+            type:[]
+        };
+    },
+    created(){
+    var config = {
+        headers: {'Access-Control-Allow-Origin': '*'}
     };
-  },
-  created(){
     axios.get('http://localhost:8069/findAllTypes').then(response => {
-      this.types = response.data
-    })
+      this.types = response.data;
+    });
+    axios.get('http://localhost:8069/findConnectionById/'+this.connId, config).then(response =>{
+        this.connection = response.data;
+    });
   },
   methods: {
-    createConnection() {
-      var today = new Date();
-      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-
-      const types = {
-        id: parseInt(this.id)
-      };
-
-      const params = {
-        host: this.host,
-        port: parseInt(this.port),
-        user: this.user,
-        pass: this.pass,
-        alias: this.alias,
-        active: this.active,
-        createDate: Date.parse(date),
-        types: types
-      }
-      Object.setPrototypeOf(types,null);
-      Object.setPrototypeOf(params, null);
-
-      console.log(params);
-
-      axios.post('http://localhost:8069/createConnection', params).catch(err => {
+    updateConnection() {      
+      axios.put('http://localhost:8069/updateConnection/'+this.connId+'/type/'+this.typeId, this.connection).catch(err => {
                console.log(err);
                return null;
            });
+      alert("Se ha modificado la conexión");
     },
     changeType(event) {
-      this.id = event.target.value;
-      console.log(this.id);
+      this.typeId = event.target.value;
+      console.log(this.typeId);
     },
     cancelar(){
       this.$router.push('/');
     },
     checkForm: function(e){
 
-      if(this.host != '' && this.port && this.user != '' && this.pass != '' && this.alias != '' && this.id){
-        this.createConnection();
+      if(this.connection.host != '' && this.connection.port != ''&& 
+            this.connection.user != '' && this.connection.pass != '' && 
+            this.connection.alias != '' && this.typeId){
+        this.updateConnection();
       }
 
       this.errors = [];
 
-      if(this.host == ''){
+      if(this.connection.host == ''){
         this.errors.push("El host es obligatorio");
       }
-      if(!this.port){
+      if(this.connection.port == ''){
         this.errors.push("El puerto es obligatorio");
       }
-      if(this.user == ''){
+      if(this.connection.user == ''){
         this.errors.push("El usuario es obligatorio");
       }
-      if(this.pass == ''){
+      if(this.connection.pass == ''){
         this.errors.push("La contraseña es obligatoria");
       }
-      if(this.alias == ''){
+      if(this.connection.alias == ''){
         this.errors.push("El alias es obligatorio");
       }
-      if(!this.id){
+      if(!this.typeId){
         this.errors.push("El tipo de conexión es obligatorio");
       }
       e.preventDefault();
@@ -117,7 +99,7 @@ export default {
 </script>
 
 <style>
-  input {
+input {
     margin: 15px 0;
     font-size: 16px;
     padding: 10px;

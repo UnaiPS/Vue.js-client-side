@@ -25,19 +25,18 @@
           <td>{{connection.host}}</td>
           <td>{{connection.port}}</td>
           <td>{{connection.user}}</td>
-          <td>{{connection.pass}}</td>
-          <td>{{connection.active}}</td>
+          <td><span v-for="pass in connection.pass" :key="pass">*</span></td>
+          <td v-if="connection.active"><i class="far fa-dot-circle"></i></td>
+          <td v-else><i class="far fa-circle"></i></td>
           <td>
             <div class="tooltip">
               <button @click="updateConnection(connection.id)"><i class="fas fa-edit"></i></button>
               <span class="tooltiptext">Editar la conexión</span>
             </div>
             <div class="tooltip">
-              <button><i class="fas fa-trash-alt"></i></button>
-              <span class="tooltiptext">Borrar la conexión</span>
+              <button @click="disableConnection(connection.id)"><i class="fas fa-trash-alt"></i></button>
+              <span class="tooltiptext">Borrado lógico de la conexión</span>
             </div>
-            
-            
           </td>
         </tr>
       </tbody>
@@ -53,19 +52,38 @@ export default {
   name: 'Home',
   data(){
     return{
-      connections: []
+      connections: [],
     };
   },
   created(){
     axios.get('http://localhost:8069/findAllConnections').then(response => {
-      this.connections = response.data
+      this.connections = response.data;
     })
   },
   methods: {
     updateConnection: function(number){
-      console.log(number);
       var route = "updateConnection/"+number;
       this.$router.push(route);
+    },
+    disableConnection: async function(number){
+      const tempConn = await axios.get('http://localhost:8069/findConnectionById/'+number);
+      const disableConn = tempConn.data;
+      console.log(disableConn)
+      if(disableConn.active == false){
+        alert("La conexión ya estaba desactivada");
+      }else{
+        if(confirm("¿Seguro que quieres desactivar la conexión?")){
+          disableConn.active = false;
+          console.log(disableConn.active);
+          axios.put('http://localhost:8069/updateConnection/'+number+'/type/'+disableConn.types.id,
+          disableConn).catch(err => {
+                console.log(err);
+                return null;
+            });
+          alert("Se ha desactivado la conexión");
+          location.reload(true);
+        }
+      }
     }
   }
 }
@@ -138,4 +156,5 @@ export default {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
 </style>

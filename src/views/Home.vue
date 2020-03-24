@@ -37,6 +37,10 @@
               <button @click="disableConnection(connection.id)"><i class="fas fa-trash-alt"></i></button>
               <span class="tooltiptext">Borrado lógico de la conexión</span>
             </div>
+            <div class="tooltip">
+              <button @click="checkConnection(connection.id)"><i class="fas fa-vial"></i></button>
+              <span class="tooltiptext">Comprobar conexión</span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -84,7 +88,24 @@ export default {
           location.reload(true);
         }
       }
-    }
+    },
+    checkConnection: async function(number){
+      const tempConn = await axios.get('http://localhost:8069/findConnectionById/' + number);
+      const checkConn = tempConn.data;
+      var config = {
+        headers: {'Access-Control-Allow-Origin': '*'}
+      };
+      console.log(checkConn);
+      axios.get('http://localhost:8940/customResponse/test/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
+        .then(response => {
+          if (response.status == 200) {
+            alert("Se ha establecido la conexión exitosamente")
+          }})
+        .catch(err => {
+          console.log(err);
+          alert("No se ha podido establecer la conexión")
+        });
+    },
   }
 }
 </script>

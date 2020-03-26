@@ -25,7 +25,7 @@
           <td>{{connection.host}}</td>
           <td>{{connection.port}}</td>
           <td>{{connection.user}}</td>
-          <td><span v-for="pass in connection.pass" :key="pass">*</span></td>
+          <td><input type="password" readonly :value="connection.pass" :id="connection.id"> <button @click="setVisible(connection.id)"><i :id="'button'+connection.id" class="fas fa-eye"></i></button></td>
           <td v-if="connection.active"><i class="far fa-dot-circle"></i></td>
           <td v-else><i class="far fa-circle"></i></td>
           <td>
@@ -69,12 +69,23 @@ export default {
         Swal.fire({
           icon: 'error',
           title: 'No se obtuvieron conexiones',
-          text: 'No se pudieron recuperar las conexiones debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+          text: 'No se pudieron recuperar las conexiones debido a un problema con el servidor, reintentelo más adelante. ' + err
         })
         return null;
     });
   },
   methods: {
+    setVisible: function(number){
+      var x = document.getElementById(number);
+      var y = document.getElementById('button'+number);
+      if (x.type === "password") {
+        x.type = "text";
+        y.className = "fas fa-eye-slash";
+      } else {
+        x.type = "password";
+        y.className = "fas fa-eye";
+      }
+    },
     updateConnection: function(number){
       var route = "updateConnection/"+number;
       this.$router.push(route);
@@ -85,7 +96,7 @@ export default {
           Swal.fire({
             icon: 'error',
             title: 'No se pudo obtener la conexión a desactivar',
-            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
           })
           return null;
       });
@@ -118,7 +129,7 @@ export default {
                   Swal.fire({
                     icon: 'error',
                     title: 'No se pudo desactivar',
-                    text: 'No se pudo desactivar la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+                    text: 'No se pudo desactivar la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
                   })
                   return null;
               });
@@ -139,7 +150,7 @@ export default {
           Swal.fire({
             icon: 'error',
             title: 'No se pudo obtener',
-            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
           })
           return null;
       });
@@ -161,7 +172,7 @@ export default {
           Swal.fire({
             icon: 'error',
             title: 'Conexión fallida',
-            text: 'No se ha podido establecer la conexión. Error: ' + err
+            text: 'No se ha podido establecer la conexión. ' + err
           })
         });
     },

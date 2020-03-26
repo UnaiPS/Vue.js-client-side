@@ -52,6 +52,8 @@
 // @ is an alias to /src
 //import ConnectionService from '../services/connections.service';
 import axios from 'axios';
+import Swal from 'sweetalert2'
+
 export default {
   name: 'Home',
   data(){
@@ -62,7 +64,15 @@ export default {
   created(){
     axios.get('http://localhost:8069/findAllConnections').then(response => {
       this.connections = response.data;
-    })
+    }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se obtuvieron conexiones',
+          text: 'No se pudieron recuperar las conexiones debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+        })
+        return null;
+    });
   },
   methods: {
     updateConnection: function(number){
@@ -70,40 +80,89 @@ export default {
       this.$router.push(route);
     },
     disableConnection: async function(number){
-      const tempConn = await axios.get('http://localhost:8069/findConnectionById/'+number);
+      const tempConn = await axios.get('http://localhost:8069/findConnectionById/'+number).catch(err => {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo obtener la conexión a desactivar',
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+          })
+          return null;
+      });
       const disableConn = tempConn.data;
-      console.log(disableConn)
       if(disableConn.active == false){
-        alert("La conexión ya estaba desactivada");
+        let obj = {
+            icon: 'warning',
+            title: '¡Atención!',
+            text: 'La conexión ya estaba desactivada'
+            
+          };
+          Swal.fire(obj);
       }else{
-        if(confirm("¿Seguro que quieres desactivar la conexión?")){
-          disableConn.active = false;
-          console.log(disableConn.active);
-          axios.put('http://localhost:8069/updateConnection/'+number+'/type/'+disableConn.types.id,
-          disableConn).catch(err => {
-                console.log(err);
-                return null;
-            });
-          alert("Se ha desactivado la conexión");
-          location.reload(true);
-        }
+        Swal.fire({
+          title: '¿Seguro que quieres desactivar la conexión?',
+          text: 'Podras volver a activar la conexión modificandola',
+          icon: 'warning',
+          showCancelButton: true,
+          cancelButtonText: 'Cancelar',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Desactivar',
+          confirmButtonColor: '#3085d6'
+        }).then((result) => {
+          if(result.value){
+            disableConn.active = false;
+            console.log(disableConn.active);
+            axios.put('http://localhost:8069/updateConnection/'+number+'/type/'+disableConn.types.id,
+            disableConn).catch(err => {
+                  console.log(err);
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo desactivar',
+                    text: 'No se pudo desactivar la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+                  })
+                  return null;
+              });
+            let obj2 = {
+              icon: 'success',
+              title: '¡Completado!',
+              text: 'Se ha desactivado la conexión. Recargue la página para ver los cambios',
+            };
+            Swal.fire(obj2);
+          }
+        })
+       
       }
     },
     checkConnection: async function(number){
-      const tempConn = await axios.get('http://localhost:8069/findConnectionById/' + number);
+      const tempConn = await axios.get('http://localhost:8069/findConnectionById/' + number).catch(err => {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo obtener',
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. Error: ' + err
+          })
+          return null;
+      });
       const checkConn = tempConn.data;
       var config = {
         headers: {'Access-Control-Allow-Origin': '*'}
       };
-      console.log(checkConn);
       axios.get('http://localhost:8940/customResponse/test/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
         .then(response => {
           if (response.status == 200) {
-            alert("Se ha establecido la conexión exitosamente")
+            Swal.fire({
+              icon: 'success',
+              title: 'Conexión establecida',
+              text: 'Se ha establecido la conexión exitosamente'
+            })
           }})
         .catch(err => {
           console.log(err);
-          alert("No se ha podido establecer la conexión")
+          Swal.fire({
+            icon: 'error',
+            title: 'Conexión fallida',
+            text: 'No se ha podido establecer la conexión. Error: ' + err
+          })
         });
     },
   }

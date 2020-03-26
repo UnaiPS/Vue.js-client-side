@@ -27,6 +27,8 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2'
+
 export default {
     props: ['connId'],
     data(){
@@ -44,23 +46,50 @@ export default {
     };
     axios.get('http://localhost:8069/findAllTypes').then(response => {
       this.types = response.data;
+    }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se obtuvieron tipos',
+          text: 'No se pudieron recuperar los tipos de conexion debido a un problema con el servidor, reintentelo más adelante. ' + err
+        })
+        return null;
     });
     axios.get('http://localhost:8069/findConnectionById/'+this.connId, config).then(response =>{
         this.connection = response.data;
+    }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se obtuvo la conexión',
+          text: 'No se pudo recuperar la conexion debido a un problema con el servidor, reintentelo más adelante. ' + err
+        })
+        return null;
     });
   },
   methods: {
     updateConnection() {      
       axios.put('http://localhost:8069/updateConnection/'+this.connId+'/type/'+this.typeId, this.connection).catch(err => {
-               console.log(err);
-               return null;
-           });
-      alert("Se ha modificado la conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios");
+        console.log(err);
+        return null;
+      }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se actualizó la conexión',
+          text: 'No se pudo actualizar la conexion debido a un problema con el servidor, reintentelo más adelante. ' + err
+        })
+        return null;
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Se ha modificado la conexión',
+        text: 'Se ha modificado la conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios'
+      })
       this.$router.push('/');
     },
     changeType(event) {
       this.typeId = event.target.value;
-      console.log(this.typeId);
     },
     cancelar(){
       this.$router.push('/');
@@ -100,7 +129,7 @@ export default {
 </script>
 
 <style>
-input {
+  #host, #port, #pass, #alias, #user {
     margin: 15px 0;
     font-size: 16px;
     padding: 10px;
@@ -113,7 +142,7 @@ input {
     color: white;
     outline: none;
   }
-  input[type=checkbox]{
+  #active{
     color: white;
     width: 20px;
   }

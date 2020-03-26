@@ -15,7 +15,7 @@
           <input type="text" id="host" name="host" placeholder="Host" v-model="host"><br>
           <input type="text" id="user" name="user" placeholder="User" v-model="user"><br>
           <input type="text" id="alias" name="alias" placeholder="Alias" v-model="alias"><br>
-          <input type="text" name="port" id="port" placeholder="Port" v-model="port"><br>
+          <input type="number" name="port" id="port" placeholder="Port" v-model="port" min="0" max="65535"><br>
           <input type="password" name="pass" id="pass" placeholder="Pass" v-model="pass"><br>
           <input type="checkbox" name="active" id="active" v-model="active">
           <label for="active">Activo</label><br>
@@ -27,6 +27,8 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2'
+
 export default {
   data(){
     return{
@@ -45,7 +47,15 @@ export default {
   created(){
     axios.get('http://localhost:8069/findAllTypes').then(response => {
       this.types = response.data
-    })
+    }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se obtuvieron tipos',
+          text: 'No se pudieron recuperar los tipos de conexion debido a un problema con el servidor, reintentelo más adelante. ' + err
+        })
+        return null;
+    });
   },
   methods: {
     createConnection() {
@@ -69,18 +79,27 @@ export default {
       Object.setPrototypeOf(types,null);
       Object.setPrototypeOf(params, null);
 
-      console.log(params);
-
       axios.post('http://localhost:8069/createConnection', params).catch(err => {
           console.log(err);
           return null;
+      }).catch(err => {
+        console.log(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se creo la conexion',
+          text: 'No se pudo crear la conexion debido a un problema con el servidor, reintentelo más adelante. ' + err
+        })
+        return null;
       });
-      alert("Se ha creado una nueva conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios");
+      Swal.fire({
+        icon: 'success',
+        title: 'Se ha creado la conexión',
+        text: 'Se ha creado una nueva conexión, por favor, recarga la página cuando estes en la ventana principal para ver los cambios'
+      })
       this.$router.push('/');
     },
     changeType(event) {
       this.id = event.target.value;
-      console.log(this.id);
     },
     cancelar(){
       this.$router.push('/');
@@ -118,7 +137,7 @@ export default {
 </script>
 
 <style>
-  input {
+  #host, #port, #pass, #alias, #user {
     margin: 15px 0;
     font-size: 16px;
     padding: 10px;
@@ -131,7 +150,7 @@ export default {
     color: white;
     outline: none;
   }
-  input[type=checkbox]{
+  #active{
     color: white;
     width: 20px;
   }

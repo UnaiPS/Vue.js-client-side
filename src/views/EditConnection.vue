@@ -44,7 +44,7 @@ export default {
     var config = {
         headers: {'Access-Control-Allow-Origin': '*'}
     };
-    axios.get('http://localhost:8069/findAllTypes').then(response => {
+    axios.get('http://localhost:8090/api/connections/findAllTypes').then(response => {
       this.types = response.data;
     }).catch(err => {
         console.log(err);
@@ -55,7 +55,7 @@ export default {
         })
         return null;
     });
-    axios.get('http://localhost:8069/findConnectionById/'+this.connId, config).then(response =>{
+    axios.get('http://localhost:8090/api/connections/findConnectionById/'+this.connId, config).then(response =>{
         this.connection = response.data;
     }).catch(err => {
         console.log(err);
@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     updateConnection() {      
-      axios.put('http://localhost:8069/updateConnection/'+this.connId+'/type/'+this.typeId, this.connection).catch(err => {
+      axios.put('http://localhost:8090/api/connections/updateConnection/'+this.connId+'/type/'+this.typeId, this.connection).catch(err => {
         console.log(err);
         return null;
       }).catch(err => {

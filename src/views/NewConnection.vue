@@ -45,7 +45,7 @@ export default {
     };
   },
   created(){
-    axios.get('http://localhost:8069/findAllTypes').then(response => {
+    axios.get('http://localhost:8090/api/connections/findAllTypes').then(response => {
       this.types = response.data
     }).catch(err => {
         console.log(err);
@@ -79,7 +79,7 @@ export default {
       Object.setPrototypeOf(types,null);
       Object.setPrototypeOf(params, null);
 
-      axios.post('http://localhost:8069/createConnection', params).catch(err => {
+      axios.post('http://localhost:8090/api/connections/createConnection', params).catch(err => {
           console.log(err);
           return null;
       }).catch(err => {

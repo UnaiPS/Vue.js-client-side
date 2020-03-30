@@ -62,7 +62,7 @@ export default {
     };
   },
   created(){
-    axios.get('http://localhost:8069/findAllConnections').then(response => {
+    axios.get('http://localhost:8090/api/connections/findAllConnections').then(response => {
       this.connections = response.data;
     }).catch(err => {
         console.log(err);
@@ -91,7 +91,7 @@ export default {
       this.$router.push(route);
     },
     disableConnection: async function(number){
-      const tempConn = await axios.get('http://localhost:8069/findConnectionById/'+number).catch(err => {
+      const tempConn = await axios.get('http://localhost:8090/api/connections/findConnectionById/'+number).catch(err => {
           console.log(err);
           Swal.fire({
             icon: 'error',
@@ -123,7 +123,7 @@ export default {
           if(result.value){
             disableConn.active = false;
             console.log(disableConn.active);
-            axios.put('http://localhost:8069/updateConnection/'+number+'/type/'+disableConn.types.id,
+            axios.put('http://localhost:8090/api/connections/updateConnection/'+number+'/type/'+disableConn.types.id,
             disableConn).catch(err => {
                   console.log(err);
                   Swal.fire({
@@ -145,7 +145,7 @@ export default {
       }
     },
     checkConnection: async function(number){
-      const tempConn = await axios.get('http://localhost:8069/findConnectionById/' + number).catch(err => {
+      const tempConn = await axios.get('http://localhost:8090/api/connections/findConnectionById/' + number).catch(err => {
           console.log(err);
           Swal.fire({
             icon: 'error',
@@ -158,7 +158,7 @@ export default {
       var config = {
         headers: {'Access-Control-Allow-Origin': '*'}
       };
-      axios.get('http://localhost:8940/customResponse/test/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
+      axios.get('http://localhost:8090/api/dbsql/customResponse/test/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
         .then(response => {
           if (response.status == 200) {
             Swal.fire({

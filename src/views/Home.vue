@@ -41,6 +41,10 @@
               <button @click="checkConnection(connection.id)"><i class="fas fa-vial"></i></button>
               <span class="tooltiptext">Comprobar conexión</span>
             </div>
+            <div class="tooltip">
+              <button @click="insertNewData(connection.id)"><i class="fas fa-pen"></i></button>
+              <span class="tooltiptext">Insertar un nuevo registro en la conexión</span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -158,7 +162,7 @@ export default {
       var config = {
         headers: {'Access-Control-Allow-Origin': '*'}
       };
-      axios.get('http://localhost:8090/api/dbsql/customResponse/test/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
+      axios.get('http://localhost:8090/api/dbsql/dbsql/findAllTables/'+checkConn.host+'/'+checkConn.alias+'/'+checkConn.user+'/'+checkConn.pass+'/'+checkConn.port, config)
         .then(response => {
           if (response.status == 200) {
             Swal.fire({
@@ -175,6 +179,53 @@ export default {
             text: 'No se ha podido establecer la conexión. ' + err
           })
         });
+    },
+    insertNewData: async function(number){
+      const tempConn = await axios.get('http://localhost:8090/api/connections/findConnectionById/' + number).catch(err => {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo obtener',
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
+          })
+          return null;
+      });
+      const checkConn = tempConn.data;
+      /*const tempConnMeta = await axios.get('http://localhost:8090/api/connections/findAllConnectionsMetadates');
+      const checkConnMeta = tempConnMeta.data;
+      const metadates = new Array();
+      array.forEach(checkConnMeta => {
+        if(checkConnMeta.connection === checkConn){
+          metadates.push(checkConnMeta.metadates);
+        }
+      });*/
+      var send = {
+        'host': checkConn.host,
+        'alias': checkConn.alias,
+        'user': checkConn.user,
+        'pass': checkConn.pass,
+        'port': parseInt(checkConn.port),
+        'tables':[
+          {
+            'name': 'test',
+            'fields':[
+              {
+                'name': 'name',
+                'value': 'prueba'
+              },
+              {
+                'name': 'phone',
+                'value': '123456'
+              },
+              {
+                'name': 'surname',
+                'value': 'prueba prueba'
+              }
+            ]
+          }
+        ]
+      };
+      axios.post('http://localhost:8090/api/dbsql/dbsql/insertElements',send);
     },
   }
 }

@@ -191,14 +191,32 @@ export default {
           return null;
       });
       const checkConn = tempConn.data;
-      /*const tempConnMeta = await axios.get('http://localhost:8090/api/connections/findAllConnectionsMetadates');
+      const tempConnMeta = await axios.get('http://localhost:8090/api/connections/findAllConnectionsMetadates');
       const checkConnMeta = tempConnMeta.data;
-      const metadates = new Array();
-      array.forEach(checkConnMeta => {
-        if(checkConnMeta.connection === checkConn){
-          metadates.push(checkConnMeta.metadates);
+      const metadates = [];
+      console.log(checkConnMeta[0].connection);
+      for(var i = 0; i < checkConnMeta.length; i++){
+        if(JSON.stringify(checkConnMeta[i].connection) === JSON.stringify(checkConn)){
+          metadates.push(checkConnMeta[i].metadates);
         }
-      });*/
+      }
+      var table = "";
+      var tempMeta = "";
+      for(var x = 0; x < metadates.length; x++){
+        if(metadates[x].level == 1){
+          tempMeta = metadates[x];
+          table = table + "{ 'name': '" + metadates[x].meta + "', 'fields': [";
+          for(var j = 0; j < metadates.length; j++){
+            if(metadates[j].idParent == tempMeta.id){
+              table = table + "{'name': '" + metadates[j].meta + "', 'value': null},"
+            }
+          }
+          table = table + "]}"
+        }
+      }
+
+      console.log(table);
+
       var send = {
         'host': checkConn.host,
         'alias': checkConn.alias,

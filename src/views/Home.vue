@@ -211,7 +211,7 @@ export default {
               table = table + "{'name': '" + metadates[j].meta + "', 'value': null},"
             }
           }
-          table = table + "]}"
+          table = table + "]},"
         }
       }
 

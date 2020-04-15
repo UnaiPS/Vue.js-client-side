@@ -200,30 +200,38 @@ export default {
           metadates.push(checkConnMeta[i].metadates);
         }
       }
-      var table = "";
+      var table = '';
       var tempMeta = "";
+      var contTable = 0;
+      var contField = 0;
       for(var x = 0; x < metadates.length; x++){
         if(metadates[x].level == 1){
           tempMeta = metadates[x];
-          table = table + "{ 'name': '" + metadates[x].meta + "', 'fields': [";
+          if(contTable >= 1){
+            table = table + ',{ "name": "' + metadates[x].meta + '", "fields": [';
+          }else{
+            table = table + '{ "name": "' + metadates[x].meta + '", "fields": [';
+          }
+          contTable++;
           for(var j = 0; j < metadates.length; j++){
             if(metadates[j].idParent == tempMeta.id){
-              table = table + "{'name': '" + metadates[j].meta + "', 'value': null},"
+              if(contField >= 1){
+                table = table + ',{"name": "' + metadates[j].meta + '", "value": "23"}';
+              }else{
+                table = table + '{"name": "' + metadates[j].meta + '", "value": "23"}';
+              }
+              
+              contField++;
             }
           }
-          table = table + "]},"
+          table = table + ']}';
         }
       }
 
       console.log(table);
 
-      var send = {
-        'host': checkConn.host,
-        'alias': checkConn.alias,
-        'user': checkConn.user,
-        'pass': checkConn.pass,
-        'port': parseInt(checkConn.port),
-        'tables':[
+      /*
+      'tables':[
           {
             'name': 'test',
             'fields':[
@@ -241,6 +249,17 @@ export default {
               }
             ]
           }
+        ]
+        */
+
+      var send = {
+        'host': checkConn.host,
+        'alias': checkConn.alias,
+        'user': checkConn.user,
+        'pass': checkConn.pass,
+        'port': parseInt(checkConn.port),
+        'tables':[
+          JSON.parse(table)
         ]
       };
       axios.post('http://localhost:8090/api/dbsql/dbsql/insertElements',send);

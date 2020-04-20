@@ -42,8 +42,8 @@
               <span class="tooltiptext">Comprobar conexión</span>
             </div>
             <div class="tooltip">
-              <button @click="insertNewData(connection.id)"><i class="fas fa-pen"></i></button>
-              <span class="tooltiptext">Insertar un nuevo registro en la conexión</span>
+              <button @click="SelectConnection(connection.id)"><i class="fas fa-pen"></i></button>
+              <span class="tooltiptext">Insertar un nuevo registro en la conexión a partir de datos que seleccione</span>
             </div>
           </td>
         </tr>
@@ -180,89 +180,152 @@ export default {
           })
         });
     },
-    insertNewData: async function(number){
-      const tempConn = await axios.get('http://localhost:8090/api/connections/findConnectionById/' + number).catch(err => {
-          console.log(err);
-          Swal.fire({
-            icon: 'error',
-            title: 'No se pudo obtener',
-            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
-          })
-          return null;
-      });
-      const checkConn = tempConn.data;
+    SelectConnection: async function(number) {
+      var config = {
+        headers: { "Access-Control-Allow-Origin": "*" }
+      };
+      const connec = await axios.get(
+        "http://localhost:8090/api/connections/findConnectionById/" + number,
+        config
+      );
+      const connection = connec.data;
       const tempConnMeta = await axios.get('http://localhost:8090/api/connections/findAllConnectionsMetadates');
       const checkConnMeta = tempConnMeta.data;
       const metadates = [];
       console.log(checkConnMeta[0].connection);
       for(var i = 0; i < checkConnMeta.length; i++){
-        if(JSON.stringify(checkConnMeta[i].connection) === JSON.stringify(checkConn)){
+        if(JSON.stringify(checkConnMeta[i].connection) === JSON.stringify(connection)){
           metadates.push(checkConnMeta[i].metadates);
         }
       }
-      var table = '';
-      var tempMeta = "";
-      var contTable = 0;
-      var contField = 0;
-      for(var x = 0; x < metadates.length; x++){
-        if(metadates[x].level == 1){
-          tempMeta = metadates[x];
-          if(contTable >= 1){
-            table = table + ',{ "name": "' + metadates[x].meta + '", "fields": [';
-          }else{
-            table = table + '{ "name": "' + metadates[x].meta + '", "fields": [';
-          }
-          contTable++;
-          for(var j = 0; j < metadates.length; j++){
-            if(metadates[j].idParent == tempMeta.id){
-              if(contField >= 1){
-                table = table + ',{"name": "' + metadates[j].meta + '", "value": "23"}';
-              }else{
-                table = table + '{"name": "' + metadates[j].meta + '", "value": "23"}';
-              }
-              
-              contField++;
-            }
-          }
-          table = table + ']}';
+      var options = [];
+      for (var j = 0; j < metadates.length; j++) {
+        if(metadates[j].level == 1){
+          options.push(metadates[j].meta);
         }
       }
-
-      console.log(table);
-
-      /*
-      'tables':[
-          {
-            'name': 'test',
-            'fields':[
-              {
-                'name': 'name',
-                'value': 'prueba'
-              },
-              {
-                'name': 'phone',
-                'value': '123456'
-              },
-              {
-                'name': 'surname',
-                'value': 'prueba prueba'
-              }
-            ]
+      var option;
+      this.$swal
+        .fire({
+          title: "Consulta la tabla",
+          input: "select",
+          inputOptions: options,
+          inputPlaceholder: "Seleccione una opcion",
+          showCancelButton: true,
+          inputValidator: function(value) {
+            console.log(value);
+            option = value;
           }
-        ]
-        */
+        })
+        .then(function() {
+          select(options, option, number);
+        });
+      async function select(array, number) {
+        var config = {
+          headers: { "Access-Control-Allow-Origin": "*" }
+        };
+        console.log(array);
+        console.log(number);
+        const select = await axios
+          .get(
+            "http://localhost:8090/api/dbsql/dbsql/allOfTable/" +
+              connection.host +
+              "/" +
+              connection.port +
+              "/" +
+              connection.user +
+              "/" +
+              connection.pass +
+              "/" +
+              connection.alias +
+              "/" +
+              array[number],
+            config
+          )
+          .catch(err => {
+            console.log(err);
+            Swal.fire(
+              "Error al cargar",
+              "No se ha podido cargar los datos",
+              "warning"
+            );
+          });
+        if (
+          typeof select.data.columns != "undefined" &&
+          select.data.columns != null &&
+          select.data.columns.length != null &&
+          select.data.columns.length > 0
+        ) {
+          //Alert
+          const text = JSON.stringify(select.data);
+          alert(text);
+          insertData(select.data, connection);
+        } else {
+          alert("No se ha podido cargar los datos");
+        }
+      }
+      function insertData(text, connection){
+        var columns = text.columns;
+        var fieldsNames = [];
+        var exist = false;
+        for(var i = 0; i < columns.length; i++){
+          exist = false;
+          for(var j = 0; j < fieldsNames.length; j++){
+            if(fieldsNames[j] == columns[i].columnName || columns[i].columnName == "id"){
+              exist = true;
+            }
+          }
+          if(!exist && columns[i].columnName != "id"){
+            fieldsNames.push(columns[i].columnName);
+          }
+        }
+        var values = [];
 
-      var send = {
-        'host': checkConn.host,
-        'alias': checkConn.alias,
-        'user': checkConn.user,
-        'pass': checkConn.pass,
-        'port': parseInt(checkConn.port),
-        'tables':[
-          JSON.parse(table)
-        ]
-      };
-      axios.post('http://localhost:8090/api/dbsql/dbsql/insertElements',send);
+        for(var x = 0; x < columns.length; x++){
+          if(columns[x].columnName != "id"){
+            values.push(columns[x].value);
+          }
+        }
+        
+        var indexName = 0;
+        var firstTime = true;
+        var tables = '';
+        var newTable = false;
+        for(var y = 0; y < values.length; y++){
+          if(firstTime){
+            firstTime = false;
+            tables = tables + '{ "name": "' + text.name + '", "fields": [';
+          }
+          if(newTable){
+            newTable=false;
+            tables = tables + ']},{ "name": "' + text.name + '", "fields": [';
+          }
+          if(indexName < fieldsNames.length){
+            if(indexName == 0){
+              tables = tables + '{"name": "' + fieldsNames[indexName] + '", "value": "' + values[y] + '"}'
+            }else{
+              tables = tables + ',{"name": "' + fieldsNames[indexName] + '", "value": "' + values[y] + '"}'
+            }
+          }
+          indexName++;
+          if(indexName == fieldsNames.length && y != values.length){
+            newTable = true;
+            indexName = 0;
+          }
+        }
+        tables = tables + ']}';
+
+        var send = {
+          'host': connection.host,
+          'alias': connection.alias,
+          'user': connection.user,
+          'pass': connection.pass,
+          'port': parseInt(connection.port),
+          'tables': JSON.parse('['+tables+']')
+        };
+        console.log(send)
+        axios.post('http://localhost:8090/api/dbsql/dbsql/insertElements',send);
+      }
     },
   }
 }

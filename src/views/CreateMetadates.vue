@@ -42,7 +42,16 @@ export default {
                 columns: checkedMeta
             };
             console.log(JSON.stringify(body));
-            axios.post('http://localhost:8090/api/dbsql/dbsql/createMetadates', body).catch(err => {
+            axios.post('http://localhost:8090/api/dbsql/dbsql/createMetadates', body).then(response => {
+                if (response.status == 201) {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Metadatos creados',
+                    text: 'Se han creado los metadatos exitosamente'
+                    })
+                }
+            })
+            .catch(err => {
                 console.log(err);
                 Swal.fire({
                     icon: 'error',

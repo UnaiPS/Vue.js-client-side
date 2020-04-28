@@ -45,6 +45,10 @@
               <button @click="SelectConnection(connection.id)"><i class="fas fa-pen"></i></button>
               <span class="tooltiptext">Insertar un nuevo registro en la conexión a partir de datos que seleccione</span>
             </div>
+            <div class="tooltip">
+              <button @click="createMetadates(connection.id)"><i class="far fa-plus-square"></i></button>
+              <span class="tooltiptext">Insertar metadatos para poder trabajar con ellos más adelante</span>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -327,6 +331,50 @@ export default {
         axios.post('http://localhost:8090/api/dbsql/dbsql/insertElements',send);
       }
     },
+    createMetadates: async function(number){
+      const tempConn = await axios.get('http://localhost:8090/api/connections/findConnectionById/'+number).catch(err => {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo obtener la conexión',
+            text: 'No se pudo obtener la conexión debido a un problema con el servidor, reintentelo más adelante. ' + err
+          })
+          return null;
+      });
+      var config = {
+        headers: {'Access-Control-Allow-Origin': '*'}
+      };
+      const connection = tempConn.data;
+      const tempTableNames = await axios.get('http://localhost:8090/api/dbsql/dbsql/getTableNames/'+connection.host+'/'+connection.port+'/'+connection.user+'/'+connection.pass+'/'+connection.alias, config).catch(err => {
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudieron obterner el nombre de las tablas',
+            text: 'No se pudieron obtener el nombre de las tablas de dicha conexión, reintentelo más adelante. ' + err
+          })
+          return null;
+      });
+      const tableNames = tempTableNames.data;
+      function column(tableName, columnName){
+        this.tableName = tableName;
+        this.columnName = columnName;
+      }
+      const columnNames = [];
+      for(var i = 0; i < tableNames.length; i++){
+        var tempCol = await axios.get('http://localhost:8090/api/dbsql/dbsql/getColumnNamesFromTable/'+connection.host+'/'+connection.port+'/'+connection.user+'/'+connection.pass+'/'+connection.alias+'/'+tableNames[i], config);
+        var columns = tempCol.data;
+        for(var j = 0; j < columns.length; j++){
+          columnNames.push(new column(tableNames[i],columns[j]));
+        }
+      }
+      /*Swal.fire({
+            icon: 'question',
+            title: 'Metadatos',
+            text: JSON.stringify(columnNames)
+        })
+      */
+      this.$router.replace({name:'Create Metadates', params:{columnNames, connection}});
+    }
   }
 }
 </script>

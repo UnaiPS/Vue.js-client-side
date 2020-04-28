@@ -28,6 +28,12 @@ const routes = [
     name: 'Update Connection',
     component: () => import('../views/EditConnection.vue'),
     props: true,
+  },
+  {
+    path: '/createMetadates',
+    name: 'Create Metadates',
+    component: ()=> import('../views/CreateMetadates.vue'),
+    props: true,
   }
 ]
 

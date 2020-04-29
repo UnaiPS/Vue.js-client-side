@@ -1,16 +1,21 @@
 <template>
     <div class="createMetadates">
         <form @submit="saveMeta">
-            <h3>Table: {{columns[0].tableName}}</h3>
-            <div v-for="(column, index) in columns" v-bind:key="column.columnName">
-                <div v-if="index > 0">
-                    <h3 v-if="columns[index-1].tableName != column.tableName">Table: {{column.tableName}}</h3>
-                </div>
-                
-                <input type="checkbox" :name="column.columnName" :id="index">
-                <label :for="column.columnName">{{column.columnName}}</label>
-            </div>
-            <input type="submit" value="Crear Metadatos" id="crearMeta">
+            <table class="center">
+                <tr>
+                    <th colspan="2"><h3>Table: {{columns[0].tableName}}</h3></th>
+                </tr>
+                    <tbody v-for="(column, index) in columns" v-bind:key="index">
+                        <tr>
+                            <th colspan="2" v-if="index > 0 && columns[index-1].tableName != column.tableName  "><h3>Table: {{column.tableName}}</h3></th>
+                        </tr>
+                        <tr>
+                            <td><label :for="column.columnName">{{column.columnName}}</label></td>
+                            <td><input type="checkbox" :name="column.columnName" :id="index"></td>
+                        </tr>
+                    </tbody>
+                    <input type="submit" value="Crear Metadatos" id="crearMeta">
+            </table>
         </form>
     </div>
 </template>
@@ -69,13 +74,78 @@ export default {
 
 <style>
     #crearMeta{
-  border: 1px solid rgba(10, 180, 180, 1);
-  background: rgba(20, 20, 20, .6);
-  font-size: 18px;
-  color: white;
-  margin-top: 20px;
-  padding: 10px 50px;
-  cursor: pointer;
-  transition: .4s;
+        border: 1px solid rgba(10, 180, 180, 1);
+        background: rgba(20, 20, 20, .6);
+        font-size: 18px;
+        color: white;
+        margin-top: 20px;
+        padding: 10px 50px;
+        cursor: pointer;
+        transition: .4s;
+    }
+    table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+  .flat-table {
+  display: block;
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 115%;
+  overflow: auto;
+  width: auto;
+  }
+  
+  th {
+    background-color: rgb(112, 196, 105);
+    color: white;
+    font-weight: normal;
+    padding: 20px 30px;
+    text-align: center;
+  }
+  td {
+    background-color: rgb(238, 238, 238);
+    color: rgb(111, 111, 111);
+    padding: 20px 30px;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+  button, input[type="submit"], input[type="reset"] {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
 </style>

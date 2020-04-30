@@ -4,7 +4,7 @@
         href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" 
         integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" 
         crossorigin="anonymous">
-    <div id="nav">
+    <div id="nav" class="navbar">
       
       <router-link to="/about">Tipos de conexión</router-link> |
       <router-link to="/">Conexiones</router-link> |
@@ -38,5 +38,20 @@
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+.navbar {
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 1;
+}
+
+
+.main {
+  padding: 16px;
+  margin-top: 50px;
 }
 </style>

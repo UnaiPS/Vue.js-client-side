@@ -1,5 +1,5 @@
 <template>
-    <div class="updateConnection">
+    <div class="main">
         <form @submit="checkForm">
           <p v-if="errors.length">
             <b style="color:#ff4d4d;">Por favor, corrija el(los) siguiente(s) error(es):</b>

@@ -1,5 +1,5 @@
 <template>
-    <div class="createMetadates">
+    <div class="main">
         <form @submit="saveMeta">
             <table class="center">
                 <tr>

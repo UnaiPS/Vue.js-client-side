@@ -31,7 +31,8 @@
                 <td>{{metadates.meta}}</td>
                 <td>{{metadates.level}}</td>
                 <td>{{metadates.description}}</td>
-                <td>{{metadates.active}}</td>
+                <td v-if="metadates.active"><i class="far fa-dot-circle"></i></td>
+                <td v-else><i class="far fa-circle"></i></td>
             </tr>
             
         </table>
@@ -120,6 +121,9 @@ export default {
     },
     deleteMetadates(){
         this.$router.push('/deleteMetadates');
+    },
+    updateMetadates(){
+        this.$router.push('/updateMetadates');
     }
 
   }

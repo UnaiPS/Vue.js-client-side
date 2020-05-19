@@ -34,6 +34,16 @@ const routes = [
     name: 'Create Metadates',
     component: ()=> import('../views/CreateMetadates.vue'),
     props: true,
+  },
+  {
+    path: '/metadates',
+    name: 'Metadates',
+    component: () => import('../views/Metadates.vue'),
+  },
+  {
+    path: '/deleteMetadates',
+    name: 'Delete Metadates',
+    component: () => import('../views/DeleteMetadates.vue')
   }
 ]
 

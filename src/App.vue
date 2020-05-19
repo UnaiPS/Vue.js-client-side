@@ -8,7 +8,7 @@
       
       <router-link to="/about">Tipos de conexión</router-link> |
       <router-link to="/">Conexiones</router-link> |
-      <router-link to="/about">Metadatos</router-link> |
+      <router-link to="/metadates">Metadatos</router-link> |
       <router-link to="/about">Procesos</router-link>
 
     </div>

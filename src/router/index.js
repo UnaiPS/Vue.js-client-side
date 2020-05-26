@@ -49,6 +49,17 @@ const routes = [
     path: '/updateMetadates',
     name: 'Update Metadates',
     component: () => import('../views/UpdateMetadates.vue')
+  },
+  {
+    path: '/process',
+    name: 'Process',
+    component: () => import('../views/Process.vue')
+  },
+  {
+    path: '/processMeta/:processId',
+    name: 'Process Metadates',
+    component: () => import('../views/ProcessMeta.vue'),
+    props: true,
   }
 ]
 

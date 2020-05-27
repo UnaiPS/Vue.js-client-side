@@ -52,6 +52,7 @@ export default {
         return{
             process: [],
             connections: [],
+            processMeta: [],
             keep: false,
             idOrigin: null,
             idDestination: null,
@@ -83,11 +84,27 @@ export default {
             })
             return null;
         });
+        axios.get('http://localhost:8090/api/connections/findAllProcessMetadata').then(response => {
+        this.processMeta = response.data;
+        }).catch(err => {
+            console.log(err);
+            Swal.fire({
+            icon: 'error',
+            title: 'No se obtuvieron conexiones',
+            text: 'No se pudieron recuperar las conexiones debido a un problema con el servidor, reintentelo más adelante. ' + err
+            })
+            return null;
+        });
     },
     methods:{
-        deleteProcess: function(number){
+        deleteProcess: async function(number){
             //hay que borrar tambien los metadatos relacionados con el proceso
-            axios.delete('http://localhost:8090/api/connections/deleteProcess/'+number).then(response =>{
+            for(let i=0; i < this.processMeta.length; i++){
+                if(this.processMeta[i].process.id == number){
+                    await axios.delete('http://localhost:8090/api/connections/deleteProcessMetadata/'+this.processMeta[i].id);
+                }
+            }
+            await axios.delete('http://localhost:8090/api/connections/deleteProcess/'+number).then(response =>{
                 if (response.status == 204) {
                     Swal.fire({
                     icon: 'success',

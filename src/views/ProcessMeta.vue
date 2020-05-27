@@ -90,6 +90,18 @@ export default {
             }
             if(!datoNull){
                 console.log('todos los datos están relacionados')
+                for(let x = 0; x < this.originMeta.length; x++){
+                    axios.post('http://localhost:8090/api/connections/createProcessMetadata/process/'+this.process.id+'/origin/'+this.originMeta[x].id+'/destination/'+destMeta[x])
+                    .catch(err => {
+                        console.log(err);
+                        Swal.fire({
+                        icon: 'error',
+                        title: 'No se crearon los datos',
+                        text: 'No se pudieron crear los datos, esto puede ser debido a un problema con el servidor, reintentelo más adelante. ' + err
+                        })
+                        return null;
+                    });
+                }
             }
         }
     }

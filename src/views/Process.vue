@@ -28,12 +28,12 @@
                 <th>Mantener IDs</th>
                 <th>Acciones</th>
             </tr>
-            <tr v-for="process in process" v-bind:key="process.id">
+            <tr v-for="(process, index) in process" v-bind:key="process.id">
                 <td>{{process.origin.alias}}</td>
                 <td>{{process.destination.alias}}</td>
-                <td v-if="process.keepIds"><i class="far fa-dot-circle"></i></td>
-                <td v-else><i class="far fa-circle"></i></td>
+                <td><input type="checkbox" v-model="process.keepIds"></td>
                 <td>
+                    <button @click="saveChanges(index)">Guardar Cambios</button>
                     <button >Ejecutar</button>
                     <button @click="organizeMeta(process.id)">Organizar Metadatos</button>
                     <button @click="deleteProcess(process.id)">Eliminar</button>
@@ -125,6 +125,26 @@ export default {
                 icon: 'error',
                 title: 'No se creo el proceso',
                 text: 'No se pudo crear el proceso debido a un problema con el servidor, reintentelo más adelante. ' + err
+                })
+                return null;
+            });
+        },
+        saveChanges(number){
+            axios.put('http://localhost:8090/api/connections/updateProcess/' + this.process[number].id + '/keep/' + this.process[number].keepIds).then(response => {
+                if (response.status == 201) {
+                    Swal.fire({
+                    icon: 'success',
+                    title: 'Proceso actualizado',
+                    text: 'Se ha actualizado el proceso exitosamente'
+                    })
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                Swal.fire({
+                icon: 'error',
+                title: 'No se actualizó el proceso',
+                text: 'No se pudo actualizar el proceso debido a un problema con el servidor, reintentelo más adelante. ' + err
                 })
                 return null;
             });
